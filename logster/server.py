@@ -1,3 +1,5 @@
+import os
+
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 from tornado.httpserver import HTTPServer
@@ -10,7 +12,10 @@ class LogsterApplication(Application):
         (r'/', handlers.IndexHandler),
     ]
 
-    settings = {}
+    settings = {
+        'template_path': os.path.join(
+            os.path.dirname(__file__), '../templates')
+    }
 
     def __init__(self):
         super(LogsterApplication, self).__init__(
