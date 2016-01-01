@@ -13,12 +13,15 @@ from .conf import config
 class LogsterApplication(Application):
     handlers = [
         (r'/', handlers.IndexHandler),
+        (r'/login', handlers.LoginHandler),
+        (r'/logout', handlers.LogoutHandler),
     ]
 
     settings = {
         'template_path': os.path.join(
             os.path.dirname(__file__), '../templates'),
-        'cookie_secret': config['app']['secret']
+        'cookie_secret': config['app']['secret'],
+        'login_url': '/login',
     }
 
     def __init__(self):
