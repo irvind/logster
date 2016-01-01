@@ -17,7 +17,8 @@ class LogsterApplication(Application):
 
     settings = {
         'template_path': os.path.join(
-            os.path.dirname(__file__), '../templates')
+            os.path.dirname(__file__), '../templates'),
+        'cookie_secret': config['app']['secret']
     }
 
     def __init__(self):
