@@ -5,6 +5,7 @@ from tornado.web import Application
 from tornado.httpserver import HTTPServer
 
 from . import handlers
+from .conf import config
 
 
 class LogsterApplication(Application):
@@ -27,6 +28,6 @@ class LogsterApplication(Application):
 def run_server():
     app = LogsterApplication()
     server = HTTPServer(app)
-    server.listen(8888)
+    server.listen(config['app']['port'])
 
     IOLoop.current().start()
