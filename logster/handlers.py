@@ -7,6 +7,7 @@ class BaseHandler(RequestHandler):
 
 
 class IndexHandler(BaseHandler):
+    @authenticated
     def get(self):
         self.render('index.html')
 
