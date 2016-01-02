@@ -21,6 +21,8 @@ class LogsterApplication(Application):
         'template_path': os.path.join(base_dir, 'templates'),
         'cookie_secret': config['app']['secret'],
         'login_url': '/login',
+        'static_path': os.path.join(base_dir, 'static'),
+        'static_url_prefix': '/static/',
     }
 
     def __init__(self):
