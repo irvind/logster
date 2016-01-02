@@ -6,7 +6,7 @@ from tornado.httpserver import HTTPServer
 
 from motor.motor_tornado import MotorClient
 
-from . import handlers
+from . import handlers, base_dir
 from .conf import config
 
 
@@ -18,8 +18,7 @@ class LogsterApplication(Application):
     ]
 
     settings = {
-        'template_path': os.path.join(
-            os.path.dirname(__file__), '../templates'),
+        'template_path': os.path.join(base_dir, 'templates'),
         'cookie_secret': config['app']['secret'],
         'login_url': '/login',
     }
