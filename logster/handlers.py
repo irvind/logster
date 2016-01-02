@@ -1,3 +1,4 @@
+from tornado import gen
 from tornado.web import RequestHandler, authenticated
 
 
@@ -20,10 +21,29 @@ class LoginHandler(BaseHandler):
     def get(self):
         self._render_template()
 
+    @gen.coroutine
     def post(self):
-        # todo: auth user
-        self.set_secure_cookie('user', self.get_argument('name'))
-        self.redirect('/')
+        username = self.get_argument('username')
+        password = self.get_argument('password')
+
+        success, error = yield self._authenticate_user(username, password)
+
+        if success:
+            self.set_secure_cookie('user', username)
+            self.redirect('/')
+        else:
+            self._render_template(error)
+
+    @gen.coroutine
+    def _authenticate_user(self, username, password):
+        user = yield self.db.users.find_one({'username': username})
+        if user is None:
+            return False, 'Login does not exist'
+
+        if user.get('password') != password:
+            return False, 'Password is invalid'
+
+        return True, None
 
     def _render_template(self, error=''):
         self.render('login.html', error=error)
