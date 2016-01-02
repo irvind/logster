@@ -23,6 +23,7 @@ class LogsterApplication(Application):
         'login_url': '/login',
         'static_path': os.path.join(base_dir, 'static'),
         'static_url_prefix': '/static/',
+        'debug': True,
     }
 
     def __init__(self):
