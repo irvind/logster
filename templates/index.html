@@ -3,5 +3,12 @@
 {% block title %}Index{% end %}
 
 {% block content %}
-    <h1>Hello, World!</h1>
+    <h1 class="header">Logster</h1>
+
+    <div class="log-box">
+    {% for entry in log_entries %}
+        <p>{{ entry }}</p>
+    {% end %}
+    </div>
+
 {% end %}

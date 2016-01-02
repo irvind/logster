@@ -14,7 +14,11 @@ class BaseHandler(RequestHandler):
 class IndexHandler(BaseHandler):
     @authenticated
     def get(self):
-        self.render('index.html')
+        self.render('index.html', log_entries=[
+            'Entity 1',
+            'Entity 2',
+            'Entity 3',
+        ])
 
 
 class LoginHandler(BaseHandler):
