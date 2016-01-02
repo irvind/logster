@@ -25,11 +25,10 @@ class LogsterApplication(Application):
     }
 
     def __init__(self):
-        db = self._connect_to_db()
+        self._connect_to_db()
 
         super(LogsterApplication, self).__init__(
             handlers=self.handlers,
-            db=db,
             **self.settings
         )
 
@@ -50,9 +49,9 @@ class LogsterApplication(Application):
         conn_str = 'mongodb://' + auth + dest + auth_db
         self.db_client = MotorClient(conn_str)
 
-        db = getattr(self.db_client, db_conf['dbName'])
+        self.db = getattr(self.db_client, db_conf['dbName'])
 
-        return db
+        return self.db
 
 
 def run_server():
