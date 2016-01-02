@@ -18,12 +18,15 @@ class IndexHandler(BaseHandler):
 
 class LoginHandler(BaseHandler):
     def get(self):
-        self.render('login.html')
+        self._render_template()
 
     def post(self):
         # todo: auth user
         self.set_secure_cookie('user', self.get_argument('name'))
         self.redirect('/')
+
+    def _render_template(self, error=''):
+        self.render('login.html', error=error)
 
 
 class LogoutHandler(BaseHandler):

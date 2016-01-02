@@ -4,7 +4,22 @@
 
 {% block content %}
     <form action="/login" method="post">
-        Name: <input type="text" name="name">
-        <input type="submit" value="Sign in">
+        <div>
+            <label for="username">Name:</label>
+            <input type="text" name="username" id="username">
+        </div>
+
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password">
+        </div>
+
+        {% if error %}
+            <div>
+                <p>{{ error }}</p>
+            </div>
+        {% end %}
+
+        <div><input type="submit" value="Sign in"></div>
     </form>
 {% end %}
