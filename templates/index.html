@@ -2,6 +2,14 @@
 
 {% block title %}Index{% end %}
 
+{% block head %}
+    <script>
+        var wsToken = '{{ token }}';
+    </script>
+
+    <script src="{{ static_url("js/websocket.js") }}"></script>
+{% end %}
+
 {% block content %}
     <h1 class="header">Logster</h1>
 

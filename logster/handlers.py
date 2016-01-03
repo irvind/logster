@@ -1,5 +1,8 @@
+import random
+
 from tornado import gen
 from tornado.web import RequestHandler, authenticated
+from tornado.websocket import WebSocketHandler
 
 
 class BaseHandler(RequestHandler):
@@ -14,11 +17,12 @@ class BaseHandler(RequestHandler):
 class IndexHandler(BaseHandler):
     @authenticated
     def get(self):
-        self.render('index.html', log_entries=[
-            'Entity 1',
-            'Entity 2',
-            'Entity 3',
-        ])
+        context = {
+            'log_entries': ['Entity 1', 'Entity 2', 'Entity 3'],
+            'token': random.randint(0, 999)
+        }
+
+        self.render('index.html', **context)
 
 
 class LoginHandler(BaseHandler):
@@ -58,3 +62,18 @@ class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie('user')
         self.redirect('/')
+
+
+class TestSocketHandler(WebSocketHandler):
+    def check_origin(self, origin):
+        return True
+
+    def open(self):
+        token = self.get_argument('token')
+        self.write_message(token)
+
+    def on_message(self, message):
+        pass
+
+    def on_close(self):
+        pass

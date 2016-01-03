@@ -15,6 +15,7 @@ class LogsterApplication(Application):
         (r'/', handlers.IndexHandler),
         (r'/login', handlers.LoginHandler),
         (r'/logout', handlers.LogoutHandler),
+        (r'/websock', handlers.TestSocketHandler),
     ]
 
     settings = {
