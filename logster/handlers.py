@@ -1,4 +1,5 @@
 import random
+import json
 
 from tornado import gen
 from tornado.web import RequestHandler, authenticated
@@ -64,16 +65,49 @@ class LogoutHandler(BaseHandler):
         self.redirect('/')
 
 
+_trigger_counter = 0
+
+class TestTriggerHandler(BaseHandler):
+    def get(self):
+        global _trigger_counter
+
+        for _, v in _test_socket_pool.items():
+            v.send_message('Message #{}'.format(_trigger_counter))
+
+        _trigger_counter += 1
+
+        print('Triggered (counter={})'.format(_trigger_counter - 1))
+
+
+_test_socket_pool = {}
+
 class TestSocketHandler(WebSocketHandler):
     def check_origin(self, origin):
         return True
 
     def open(self):
-        token = self.get_argument('token')
-        self.write_message(token)
+        self.token = self.get_argument('token')
+        self.write_message(self.token)
+
+        _test_socket_pool[self.token] = self
+
+        print('Socket handler was added to the pool (token={})'.format(
+            self.token
+        ))
 
     def on_message(self, message):
         pass
 
     def on_close(self):
-        pass
+        del _test_socket_pool[self.token]
+
+        print('Socket handler was removed from the pool (token={})'.format(
+            self.token
+        ))
+
+    def send_message(self, msg):
+        self.write_message(json.dumps({'message': msg}))
+
+        print('Message was sent (token={}, msg="{}")'.format(
+            self.token, msg
+        ))
