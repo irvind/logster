@@ -87,7 +87,7 @@ class TestSocketHandler(WebSocketHandler):
 
     def open(self):
         self.token = self.get_argument('token')
-        self.write_message(self.token)
+        # self.write_message(self.token)
 
         _test_socket_pool[self.token] = self
 
