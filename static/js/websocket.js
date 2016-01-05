@@ -6,7 +6,7 @@ $(function() {
 
     socket.onopen = function() {
         console.log('Websocket was openned');
-        logBox.html('');
+        // logBox.html('');
         // socket.send('Hello!');
     };
 
