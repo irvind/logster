@@ -1,6 +1,8 @@
 import random
 import json
 
+import pymongo
+
 from tornado import gen
 from tornado.web import RequestHandler, authenticated
 from tornado.websocket import WebSocketHandler
@@ -16,10 +18,17 @@ class BaseHandler(RequestHandler):
 
 
 class IndexHandler(BaseHandler):
+    test_log = 'test_log'
+
+    @gen.coroutine
     @authenticated
     def get(self):
+        log_entries = yield self.db.entries.find({
+            'log': self.test_log
+        }).sort('time', pymongo.DESCENDING).limit(5).to_list(None)
+
         context = {
-            'log_entries': ['Entity 1', 'Entity 2', 'Entity 3'],
+            'log_entries': [e['content'] for e in reversed(log_entries)],
             'token': random.randint(0, 999)
         }
 
