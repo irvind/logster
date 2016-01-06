@@ -4,10 +4,9 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application
 from tornado.httpserver import HTTPServer
 
-from motor.motor_tornado import MotorClient
-
 from . import handlers, base_dir
 from .conf import config
+from .db import connect_to_db
 
 
 class LogsterApplication(Application):
@@ -29,33 +28,12 @@ class LogsterApplication(Application):
     }
 
     def __init__(self):
-        self._connect_to_db()
+        self.db_client, self.db = connect_to_db(async=True)
 
         super(LogsterApplication, self).__init__(
             handlers=self.handlers,
             **self.settings
         )
-
-    def _connect_to_db(self):
-        db_conf = config['db']
-
-        with_auth = db_conf.get('user') and db_conf.get('password')
-        if with_auth:
-            auth = '{user}:{password}@'.format(**db_conf)
-            if db_conf.get('authDbName'):
-                auth_db = '/' + db_conf['authDbName']
-        else:
-            auth = ''
-            auth_db = ''
-
-        dest = '{host}:{port}'.format(**db_conf)
-
-        conn_str = 'mongodb://' + auth + dest + auth_db
-        self.db_client = MotorClient(conn_str)
-
-        self.db = getattr(self.db_client, db_conf['dbName'])
-
-        return self.db
 
 
 def run_server():
