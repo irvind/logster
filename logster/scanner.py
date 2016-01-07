@@ -1,3 +1,4 @@
+import json
 import os
 import datetime
 import time
@@ -5,6 +6,7 @@ import hashlib
 
 from datetime import datetime
 
+import requests
 import pymongo
 
 from .db import connect_to_db
@@ -78,9 +80,9 @@ def _scanner_iter(db):
 
             i += 1
 
-        db.entries.insert(new_docs)
+        new_ids = db.entries.insert(new_docs)
 
-        _notify_websockets(new_docs)
+        _notify_websockets(log_id, new_ids)
 
     for log in db.logs.find():
         check_log(log)
@@ -88,6 +90,10 @@ def _scanner_iter(db):
     time.sleep(1)
 
 
-def _notify_websockets(docs):
-    # todo
-    pass
+def _notify_websockets(log_id, new_entry_ids):
+    data = json.dumps({
+        'log_id': str(log_id),
+        'entry_ids': [str(ent) for ent in new_entry_ids]
+    })
+
+    requests.post('http://localhost/notifications', data=data)
