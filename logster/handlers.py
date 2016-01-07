@@ -34,7 +34,7 @@ class IndexHandler(BaseHandler):
     def get(self):
         log_entries = yield self.db.entries.find({
             'log': self.test_log
-        }).sort('time', pymongo.DESCENDING).limit(5).to_list(None)
+        }).sort('order', pymongo.DESCENDING).limit(5).to_list(None)
 
         context = {
             'log_entries': [e['content'] for e in reversed(log_entries)],
