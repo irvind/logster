@@ -15,8 +15,13 @@ def file_mtime(path):
 
 
 def md5_hex(data):
-    # todo
-    pass
+    if hasattr(data, 'encode'):
+        data = data.encode('utf-8')
+
+    hasher = hashlib.md5()
+    hasher.update(data)
+
+    return hasher.hexdigest()
 
 
 def run_scanner():
