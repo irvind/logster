@@ -120,3 +120,9 @@ class TestSocketHandler(WebSocketHandler):
         print('Message was sent (token={}, msg="{}")'.format(
             self.token, msg
         ))
+
+
+class NotificationsHandler(BaseHandler):
+    @gen.coroutine
+    def post(self):
+        pass
