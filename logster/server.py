@@ -1,11 +1,12 @@
 import os
+import logging.config
 
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 from tornado.httpserver import HTTPServer
 
 from . import handlers, base_dir
-from .conf import config
+from .conf import config, logging_conf
 from .db import connect_to_db
 
 
@@ -38,8 +39,14 @@ class LogsterApplication(Application):
 
 
 def run_server():
+    setup_logging()
+
     app = LogsterApplication()
     server = HTTPServer(app)
     server.listen(config['app']['port'])
 
     IOLoop.current().start()
+
+
+def setup_logging():
+    logging.config.dictConfig(logging_conf)
