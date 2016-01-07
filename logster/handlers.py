@@ -137,4 +137,21 @@ class NotificationsHandler(BaseHandler):
         if self.request.remote_ip != '127.0.0.1':
             return
 
+        body = self.json_body
+        log = yield self.db.logs.find_one({
+            '_id': ObjectId(body['log_id'])
+        })
 
+        entries = yield self.db.entries.find({
+            '_id': {
+                '$in': [ObjectId(ent) for ent for body['entry_ids']]
+            }
+        }).sort('order').to_list(None)
+
+        if log['name'] != 'test_log':
+            # todo: until now only accept 'test_log' entry notifications
+            return
+
+        for _, v in _test_socket_pool.items():
+            for ent in entries:
+                v.send_message(ent['content'])
