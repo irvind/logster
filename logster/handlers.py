@@ -125,4 +125,7 @@ class TestSocketHandler(WebSocketHandler):
 class NotificationsHandler(BaseHandler):
     @gen.coroutine
     def post(self):
-        pass
+        if self.request.remote_ip != '127.0.0.1':
+            return
+
+
