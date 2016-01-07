@@ -3,6 +3,8 @@ import json
 
 import pymongo
 
+from bson.objectid import ObjectId
+
 from tornado import gen
 from tornado.web import RequestHandler, authenticated
 from tornado.websocket import WebSocketHandler
