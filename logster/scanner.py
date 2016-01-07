@@ -93,7 +93,7 @@ def _scanner_iter(db):
 def _notify_websockets(log_id, new_entry_ids):
     data = json.dumps({
         'log_id': str(log_id),
-        'entry_ids': [str(ent) for ent in new_entry_ids]
+        'entry_ids': [str(ent) for ent in new_entry_ids],
     })
 
-    requests.post('http://localhost/notifications', data=data)
+    requests.post('http://127.0.0.1/notifications', data=data)
