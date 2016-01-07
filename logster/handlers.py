@@ -146,7 +146,7 @@ class NotificationsHandler(BaseHandler):
 
         entries = yield self.db.entries.find({
             '_id': {
-                '$in': [ObjectId(ent) for ent for body['entry_ids']]
+                '$in': [ObjectId(ent) for ent in body['entry_ids']]
             }
         }).sort('order').to_list(None)
 

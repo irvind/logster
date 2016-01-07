@@ -22,6 +22,6 @@ def connect_to_db(async=True):
     client_cls = MotorClient if async else MongoClient
     db_client = client_cls(conn_str)
 
-    db = getattr(self.db_client, db_conf['dbName'])
+    db = getattr(db_client, db_conf['dbName'])
 
     return db_client, db
