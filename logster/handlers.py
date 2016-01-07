@@ -13,6 +13,15 @@ class BaseHandler(RequestHandler):
     def db(self):
         return self.application.db
 
+    @property
+    def json_body(self):
+        if self.request.body:
+            return None
+
+        body = self.request.body.decode('utf-8')
+
+        return json.loads(body)
+
     def get_current_user(self):
         return self.get_secure_cookie('user')
 
