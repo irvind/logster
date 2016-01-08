@@ -33,10 +33,15 @@ logging_conf = {
             'formatter': 'default',
             'level': 'DEBUG',
         },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
+            'formatter': 'default',
+        },
     },
 
     'root': {
         'level': 'DEBUG',
-        'handlers': ['main_log_file'],
+        'handlers': ['main_log_file', 'console'],
     },
 }
