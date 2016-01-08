@@ -9,7 +9,7 @@ from datetime import datetime
 import requests
 import pymongo
 
-from . import setup_logging
+from .logging import setup_logging
 from .db import connect_to_db
 
 

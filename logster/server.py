@@ -1,12 +1,12 @@
 import os
-import logging.config
 
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 from tornado.httpserver import HTTPServer
 
-from . import handlers, base_dir, setup_logging
-from .conf import config, logging_conf
+from . import handlers, base_dir
+from .logging import setup_logging
+from .conf import config
 from .db import connect_to_db
 
 
