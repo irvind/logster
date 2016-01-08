@@ -25,7 +25,7 @@ class BaseHandler(RequestHandler):
 
         body = self.request.body.decode('utf-8')
 
-        return json.loads(body)
+        return json.loads(body) if body else None
 
     def get_current_user(self):
         return self.get_secure_cookie('user')
