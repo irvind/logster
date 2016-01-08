@@ -13,8 +13,7 @@ if config is None:
         config = json.load(f)
 
 # Logging configuration
-log_path = config['app'].get('logPath', os.path.join(base_dir, 'logster.log'))
-log_level = config['app'].get('logLevel', 'INFO')
+app, scanner = config['app'], config['scanner']
 
 logging_conf = {
     'version': 1,
@@ -27,11 +26,21 @@ logging_conf = {
     },
 
     'handlers': {
-        'main_log_file': {
+        'webapp_log_file': {
             'class': 'logging.FileHandler',
-            'filename': log_path,
             'formatter': 'default',
-            'level': 'DEBUG',
+            'filename': app.get(
+                'logPath', os.path.join(base_dir, 'logster.log')
+            ),
+            'level': app.get('logLevel', 'INFO'),
+        },
+        'scanner_log_file': {
+            'class': 'logging.FileHandler',
+            'formatter': 'default',
+            'filename': scanner.get(
+                'logPath', os.path.join(base_dir, 'logster_scanner.log')
+            ),
+            'level': scanner.get('logLevel', 'INFO'),
         },
         'console': {
             'class': 'logging.StreamHandler',
@@ -40,8 +49,14 @@ logging_conf = {
         },
     },
 
-    'root': {
-        'level': 'DEBUG',
-        'handlers': ['main_log_file', 'console'],
+    'loggers': {
+        'webapp': {
+            'level': 'DEBUG',
+            'handlers': ['webapp_log_file', 'console'],
+        },
+        'scanner': {
+            'level': 'DEBUG',
+            'handlers': ['scanner_log_file', 'console'], 
+        },
     },
 }
