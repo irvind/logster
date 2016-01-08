@@ -1,6 +1,7 @@
 *.pyc
 __pycache__
 logster.log
+logster_scanner.log
 
 # personal
 notes.txt
