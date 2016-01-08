@@ -1,4 +1,5 @@
 import os
+import logging
 
 from tornado.ioloop import IOLoop
 from tornado.web import Application
@@ -8,6 +9,8 @@ from . import handlers, base_dir
 from .logging import setup_logging
 from .conf import config
 from .db import connect_to_db
+
+logger = logging.getLogger('webapp')
 
 
 class LogsterApplication(Application):
@@ -44,5 +47,7 @@ def run_server():
     app = LogsterApplication()
     server = HTTPServer(app)
     server.listen(config['app']['port'])
+
+    logger.info('Logster started!')
 
     IOLoop.current().start()
