@@ -5,7 +5,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application
 from tornado.httpserver import HTTPServer
 
-from . import handlers, base_dir
+from . import handlers, base_dir, setup_logging
 from .conf import config, logging_conf
 from .db import connect_to_db
 
@@ -46,7 +46,3 @@ def run_server():
     server.listen(config['app']['port'])
 
     IOLoop.current().start()
-
-
-def setup_logging():
-    logging.config.dictConfig(logging_conf)
