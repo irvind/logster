@@ -10,6 +10,8 @@ from tornado import gen
 from tornado.web import RequestHandler, authenticated
 from tornado.websocket import WebSocketHandler
 
+log = logging.getLogger('webapp')
+
 
 class BaseHandler(RequestHandler):
     @property
@@ -97,7 +99,7 @@ class TestTriggerHandler(BaseHandler):
 
         _trigger_counter += 1
 
-        logging.debug('Triggered (counter=%s)', _trigger_counter - 1)
+        log.debug('Triggered (counter=%s)', _trigger_counter - 1)
 
 
 _test_socket_pool = {}
@@ -111,8 +113,8 @@ class TestSocketHandler(WebSocketHandler):
 
         _test_socket_pool[self.token] = self
 
-        logging.debug('Socket handler was added to the pool (token=%s)', 
-                      self.token)
+        log.debug('Socket handler was added to the pool (token=%s)', 
+                  self.token)
 
     def on_message(self, message):
         pass
@@ -120,14 +122,14 @@ class TestSocketHandler(WebSocketHandler):
     def on_close(self):
         del _test_socket_pool[self.token]
 
-        logging.debug('Socket handler was removed from the pool (token={})', 
-                      self.token)
+        log.debug('Socket handler was removed from the pool (token={})', 
+                  self.token)
 
     def send_message(self, msg):
         self.write_message(json.dumps({'message': msg}))
 
-        logging.debug('Message was sent (token=%s, msg="%s")',
-                      self.token, msg)
+        log.debug('Message was sent (token=%s, msg="%s")',
+                  self.token, msg)
 
 
 class NotificationsHandler(BaseHandler):
