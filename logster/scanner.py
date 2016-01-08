@@ -9,6 +9,7 @@ from datetime import datetime
 import requests
 import pymongo
 
+from . import setup_logging
 from .db import connect_to_db
 
 
@@ -28,6 +29,8 @@ def md5_hex(data):
 
 def run_scanner():
     _, db = connect_to_db(async=False)
+
+    setup_logging()
     
     try:
         while True:
