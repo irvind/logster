@@ -1,7 +1,13 @@
 *.pyc
 __pycache__
+
+# Logs
 logster.log
 logster_scanner.log
 
-# personal
+# SublimeText
+logster.sublime-project
+logster.sublime-workspace
+
+# Personal
 notes.txt
