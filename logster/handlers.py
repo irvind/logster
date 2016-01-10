@@ -90,6 +90,7 @@ class LogoutHandler(BaseHandler):
 
 _trigger_counter = 0
 
+
 class TestTriggerHandler(BaseHandler):
     def get(self):
         global _trigger_counter
@@ -104,6 +105,7 @@ class TestTriggerHandler(BaseHandler):
 
 _test_socket_pool = {}
 
+
 class TestSocketHandler(WebSocketHandler):
     def check_origin(self, origin):
         return True
@@ -113,7 +115,7 @@ class TestSocketHandler(WebSocketHandler):
 
         _test_socket_pool[self.token] = self
 
-        logger.debug('Socket handler was added to the pool (token=%s)', 
+        logger.debug('Socket handler was added to the pool (token=%s)',
                      self.token)
 
     def on_message(self, message):
@@ -122,7 +124,7 @@ class TestSocketHandler(WebSocketHandler):
     def on_close(self):
         del _test_socket_pool[self.token]
 
-        logger.debug('Socket handler was removed from the pool (token={})', 
+        logger.debug('Socket handler was removed from the pool (token={})',
                      self.token)
 
     def send_message(self, msg):
