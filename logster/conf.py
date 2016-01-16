@@ -56,7 +56,7 @@ logging_conf = {
         },
         'scanner': {
             'level': 'DEBUG',
-            'handlers': ['scanner_log_file', 'console'], 
+            'handlers': ['scanner_log_file', 'console'],
         },
     },
 }
