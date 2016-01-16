@@ -9,16 +9,11 @@
 		"port": 8888,
 		"secret": "***INSERT YOUR SECRET***",
 		"logLevel": "DEBUG",
-		"defaultLog": "test_log"
+		"defaultLog": "test_log",
+		"initialLineCount": 10
 	},
 
 	"scanner": {
 		"logLevel": "DEBUG"	
-	},
-
-	"logs": {
-		"test_log": {
-			"file": ""
-		}
 	}
 }

@@ -1,4 +1,3 @@
-import random
 import json
 import logging
 
@@ -7,6 +6,7 @@ import pymongo
 from bson.objectid import ObjectId
 
 from tornado import gen
+from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler, authenticated
 from tornado.websocket import WebSocketHandler
 
@@ -16,7 +16,11 @@ from .conf import config
 logger = logging.getLogger('webapp')
 
 
-class BaseHandler(RequestHandler):
+class LogsterException(Exception):
+    pass
+
+
+class BaseHandler:
     @property
     def db(self):
         return self.application.db
@@ -34,33 +38,22 @@ class BaseHandler(RequestHandler):
         return self.get_secure_cookie('user')
 
 
-class IndexHandler(BaseHandler):
+class BaseRequestHandler(BaseHandler, RequestHandler):
+    pass
+
+
+class BaseWebSocketHandler(BaseHandler, WebSocketHandler):
+    pass
+
+
+class IndexHandler(BaseRequestHandler):
     @gen.coroutine
     @authenticated
     def get(self):
-        log = yield self.db.logs.find_one({
-            'name': config['app']['defaultLog']
-        })
-
-        if log:
-            log_entries = yield self.db.entries.find({
-                'log': log['_id']
-            }).sort('order', pymongo.DESCENDING).limit(5).to_list(None)
-
-            log_messages = [e['content'] for e in reversed(log_entries)]
-
-        else:
-            log_messages = []
-
-        context = {
-            'log_messages': log_messages,
-            'token': random.randint(0, 999)
-        }
-
-        self.render('index.html', **context)
+        self.render('index.html')
 
 
-class LoginHandler(BaseHandler):
+class LoginHandler(BaseRequestHandler):
     def get(self):
         self._render_template()
 
@@ -92,48 +85,83 @@ class LoginHandler(BaseHandler):
         self.render('login.html', error=error)
 
 
-class LogoutHandler(BaseHandler):
+class LogoutHandler(BaseRequestHandler):
     @authenticated
     def get(self):
         self.clear_cookie('user')
         self.redirect('/')
 
 
-_trigger_counter = 0
+_web_socket_pool = {}
 
 
-class TestTriggerHandler(BaseHandler):
-    def get(self):
-        global _trigger_counter
-
-        for _, v in _test_socket_pool.items():
-            v.send_message('Message #{}'.format(_trigger_counter))
-
-        _trigger_counter += 1
-
-        logger.debug('Triggered (counter=%s)', _trigger_counter - 1)
-
-
-_test_socket_pool = {}
-
-
-class TestSocketHandler(WebSocketHandler):
+class ClientWebSocketHandler(BaseWebSocketHandler):
     def check_origin(self, origin):
         return True
 
     def open(self):
-        self.token = self.get_argument('token')
+        user = self.get_secure_cookie('user')
+        logger.info('Authenticated user "%s" started websocket connection',
+                    user)
 
-        _test_socket_pool[self.token] = self
+        self.log_name = self.get_argument('log')
 
-        logger.debug('Socket handler was added to the pool (token=%s)',
-                     self.token)
+        IOLoop.current().spawn_callback(self._process_new_websocket)
+
+    @gen.coroutine
+    def _process_new_websocket(self):
+        try:
+            entries = yield self._get_initial_log_entries(self.log_name)
+        except LogsterException as e:
+            self.write_message(json.dumps({
+                'message_type': 'error',
+                'error': str(e)
+            }))
+
+            self.added = False
+            self.close()
+            return
+
+        self.write_message(json.dumps({
+            'message_type': 'new_entries',
+            'entries': entries
+        }))
+
+        if self.log_name not in _web_socket_pool:
+            _web_socket_pool[self.log_name] = []
+
+        _web_socket_pool[self.log_name].append(self)
+        self.added = True
+
+        logger.debug('Socket handler was added to the pool')
+
+    @gen.coroutine
+    def _get_initial_log_entries(self, log_name):
+        log = yield self.db.logs.find_one({
+            'name': log_name
+        })
+
+        if log is None:
+            raise LogsterException('Log is not found')
+
+        log_entries = yield self.db.entries.find({
+            'log': log['_id']
+        }).sort('order', pymongo.DESCENDING).limit(
+            config['app']['initialLineCount']).to_list(None)
+
+        return [{
+            'content': e['content'],
+            'order': e['order']
+        } for e in reversed(log_entries)]
 
     def on_message(self, message):
         pass
 
     def on_close(self):
-        del _test_socket_pool[self.token]
+        if not self.added:
+            return
+
+        _web_socket_pool[self.log_name].remove(self)
 
         logger.debug('Socket handler was removed from the pool (token={})',
                      self.token)
@@ -145,30 +173,52 @@ class TestSocketHandler(WebSocketHandler):
                      self.token, msg)
 
 
-class NotificationsHandler(BaseHandler):
+class ScannerNotificationsHandler(BaseRequestHandler):
     @gen.coroutine
     def post(self):
         if self.request.remote_ip != '127.0.0.1':
+            logger.info('Skip notifications from non-localhost (ipaddr=%s)',
+                        self.request.remote_ip)
             return
 
+        # Body format:
+        # {
+        #     "log_id": "<ObjectId hexstr>",
+        #     "entry_ids": ["<ObjectId hexstr>", ...]
+        # }
         body = self.json_body
 
-        logger.info('Scanner notification received. Body: %s', body)
+        logger.info('Scanner notification received (body: %s)', body)
 
-        log = yield self.db.logs.find_one({
+        self.log = yield self.db.logs.find_one({
             '_id': ObjectId(body['log_id'])
         })
 
-        entries = yield self.db.entries.find({
+        if self.log is None:
+            logger.info('Log is not found, cannot process notification '
+                        '(log_id=%s)', body['log_id'])
+            return
+
+        if self.log['name'] != config['app']['defaultLog']:
+            # don't receive notfications from other locations than default
+            logger.info('Skip notifications from non-default log '
+                        '(log_name=%s)', self.log['name'])
+            return
+
+        self.entries = yield self.db.entries.find({
             '_id': {
                 '$in': [ObjectId(ent) for ent in body['entry_ids']]
             }
         }).sort('order').to_list(None)
 
-        if log['name'] != 'test_log':
-            # todo: until now only accept 'test_log' entry notifications
-            return
+        websock_message = self._build_client_notif_message()
 
+        # todo: fix error
         for _, v in _test_socket_pool.items():
-            for ent in entries:
+            v.send_message(json.dumps())
+            for ent in self.entries:
                 v.send_message(ent['content'])
+
+    def _build_client_notif_message(self):
+        # todo
+        return None
