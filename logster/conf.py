@@ -52,10 +52,12 @@ logging_conf = {
     'loggers': {
         'webapp': {
             'level': 'DEBUG',
+            'propagate': False,
             'handlers': ['webapp_log_file', 'console'],
         },
         'scanner': {
             'level': 'DEBUG',
+            'propagate': False,
             'handlers': ['scanner_log_file', 'console'],
         },
     },
