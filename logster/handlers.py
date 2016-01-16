@@ -10,6 +10,9 @@ from tornado import gen
 from tornado.web import RequestHandler, authenticated
 from tornado.websocket import WebSocketHandler
 
+from .conf import config
+
+
 logger = logging.getLogger('webapp')
 
 
@@ -32,17 +35,25 @@ class BaseHandler(RequestHandler):
 
 
 class IndexHandler(BaseHandler):
-    test_log = 'test_log'
-
     @gen.coroutine
     @authenticated
     def get(self):
-        log_entries = yield self.db.entries.find({
-            'log': self.test_log
-        }).sort('order', pymongo.DESCENDING).limit(5).to_list(None)
+        log = yield self.db.logs.find_one({
+            'name': config['app']['defaultLog']
+        })
+
+        if log:
+            log_entries = yield self.db.entries.find({
+                'log': log['_id']
+            }).sort('order', pymongo.DESCENDING).limit(5).to_list(None)
+
+            log_messages = [e['content'] for e in reversed(log_entries)]
+
+        else:
+            log_messages = []
 
         context = {
-            'log_entries': [e['content'] for e in reversed(log_entries)],
+            'log_messages': log_messages,
             'token': random.randint(0, 999)
         }
 
