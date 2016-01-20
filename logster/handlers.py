@@ -196,10 +196,12 @@ class ScannerNotificationsHandler(BaseRequestHandler):
                         '(log_id=%s)', body['log_id'])
             return
 
-        if self.log['name'] != config['app']['defaultLog']:
+        log_name = self.log['name']
+
+        if log_name != config['app']['defaultLog']:
             # don't receive notfications from other locations than default
             logger.info('Skip notifications from non-default log '
-                        '(log_name=%s)', self.log['name'])
+                        '(log_name=%s)', log_name)
             return
 
         self.entries = yield self.db.entries.find({
@@ -208,14 +210,17 @@ class ScannerNotificationsHandler(BaseRequestHandler):
             }
         }).sort('order').to_list(None)
 
-        websock_message = self._build_client_notif_message()
+        websock_message = json.dumps(self._build_client_notif_message())
+        websockets = _web_socket_pool.get(log_name, [])
 
-        # todo: fix error
-        for _, v in _test_socket_pool.items():
-            v.send_message(json.dumps())
-            for ent in self.entries:
-                v.send_message(ent['content'])
+        for handler in websockets:
+            handler.write_message(websock_message)
 
     def _build_client_notif_message(self):
-        # todo
-        return None
+        return {
+            'message_type': 'new_entries',
+            'entries': [{
+                'content': e['content'],
+                'order': e['order']
+            } for e in self.entries]
+        }
