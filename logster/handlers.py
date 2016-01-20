@@ -11,13 +11,10 @@ from tornado.web import RequestHandler, authenticated
 from tornado.websocket import WebSocketHandler
 
 from .conf import config
+from .exceptions import LogsterException
 
 
 logger = logging.getLogger('webapp')
-
-
-class LogsterException(Exception):
-    pass
 
 
 class BaseHandler:

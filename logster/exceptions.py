@@ -1,0 +1,2 @@
+class LogsterException(Exception):
+    pass
