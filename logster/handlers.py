@@ -163,11 +163,11 @@ class ClientWebSocketHandler(BaseWebSocketHandler):
         logger.debug('Socket handler was removed from the pool (token={})',
                      self.token)
 
-    def send_message(self, msg):
-        self.write_message(json.dumps({'message': msg}))
+    # def send_message(self, msg):
+    #     self.write_message(json.dumps({'message': msg}))
 
-        logger.debug('Message was sent (token=%s, msg="%s")',
-                     self.token, msg)
+    #     logger.debug('Message was sent (token=%s, msg="%s")',
+    #                  self.token, msg)
 
 
 class ScannerNotificationsHandler(BaseRequestHandler):
