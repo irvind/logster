@@ -63,7 +63,7 @@ class Collection:
         self.result = None
         self.cursor = None
 
-    def find(self, order=None, **kwargs):
+    def find(self, **kwargs):
         self.result = None
         self.cursor = self.collection.find(kwargs)
         return self
