@@ -1,3 +1,5 @@
+import pymongo
+
 from motor.motor_tornado import MotorClient
 from pymongo import MongoClient
 
@@ -66,6 +68,17 @@ class Collection:
     def find(self, **kwargs):
         self.result = None
         self.cursor = self.collection.find(kwargs)
+        return self
+
+    def sort(self, *args):
+        if self.cursor is None:
+            raise DbError('You must invoke `.find()` before sorting')
+
+        sorters = [
+            (arg, pymongo.ASCENDING) if arg[0] == '-'
+            else (arg[1:], pymongo.DESCENDING) for arg in args]
+
+        self.cursor = self.cursor.sort(sorters)
         return self
 
     def find_one(self, **kwargs):
