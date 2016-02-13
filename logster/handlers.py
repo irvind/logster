@@ -52,7 +52,7 @@ class IndexHandler(BaseRequestHandler):
 
 class LoginHandler(BaseRequestHandler):
     def get(self):
-        self._render_template()
+        self.render('login.html')
 
     @gen.coroutine
     def post(self):
@@ -65,7 +65,7 @@ class LoginHandler(BaseRequestHandler):
             self.set_secure_cookie('user', username)
             self.redirect('/')
         else:
-            self._render_template(error)
+            self.render('login.html', error=error)
 
     @gen.coroutine
     def _authenticate_user(self, username, password):
@@ -77,9 +77,6 @@ class LoginHandler(BaseRequestHandler):
             return False, 'Password is invalid'
 
         return True, None
-
-    def _render_template(self, error=''):
-        self.render('login.html', error=error)
 
 
 class LogoutHandler(BaseRequestHandler):
