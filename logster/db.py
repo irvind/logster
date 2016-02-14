@@ -32,7 +32,9 @@ def connect_to_db(async=True):
 
 class ModelMeta(type):
     def __new__(cls, name, bases, attrs):
-        attrs['collection_name'] = name.lower()
+        if 'collection_name' not in attrs:
+            attrs['collection_name'] = name.lower()
+
         return super().__new__(cls, name, bases, attrs)
 
 
