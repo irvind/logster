@@ -45,11 +45,17 @@ class Model(metaclass=ModelMeta):
 
     @classmethod
     def find(cls, **kwargs):
-        return Collection(cls).find(**kwargs)
+        return Collection(cls, cls._get_db()).find(**kwargs)
 
     @classmethod
     def find_one(cls, **kwargs):
-        return Collection(cls).find_one(**kwargs)
+        return Collection(cls, cls._get_db()).find_one(**kwargs)
+
+    @classmethod
+    def _get_db(cls):
+        if hasattr(cls, 'db'):
+            return cls.db
+        raise Exception()
 
 
 # db = connect_to_db(False)[1]
