@@ -4,6 +4,8 @@ import random
 import pymongo
 from pymongo import MongoClient
 
+from logster.db import Model
+
 
 _connection = None
 
@@ -56,3 +58,19 @@ def test_db_fixture(db):
 
         assert doc is not None
         assert doc['test'] == 42
+
+
+def test_find_in_collection(db):
+    data = [
+        {'name': 'Ginger', 'age': 2},
+        {'name': 'Kleo', 'age': 4},
+        {'name': 'Fluffy', 'age': 7}
+    ]
+
+    with db.test_collection(initial_data=data) as col:
+        class Kitteh(Model):
+            collection_name = col.name
+            db = col.database
+
+        cat = Kitteh.find_one(name='Ginger')
+        assert cat.name == 'Ginger'
