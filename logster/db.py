@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pymongo
 
 from motor.motor_tornado import MotorClient
@@ -53,13 +55,26 @@ class ModelMeta(type):
         if 'collection_name' not in attrs:
             attrs['collection_name'] = name.lower()
 
+        fields = OrderedDict()
+        for attr, attr_val in attrs.items():
+            if not isinstance(attr_val, ModelField):
+                continue
+
+            fields[attr] = attr_val
+
+        for field in fields.key():
+            attrs.pop(field)
+
+        attrs['_declared_fields'] = fields
+
         return super().__new__(cls, name, bases, attrs)
 
 
 class Model(metaclass=ModelMeta):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
-            setattr(self, k, v)
+            if k in self._declared_fields:
+                setattr(self, k, v)
 
     @classmethod
     def find(cls, **kwargs):
