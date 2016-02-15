@@ -96,7 +96,7 @@ class Collection:
         return None
 
     def __iter__(self):
-        if not self.result and not self.cursor:
+        if not self.cursor:
             raise DbError()
 
         if not self.result:
