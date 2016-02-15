@@ -30,6 +30,21 @@ def connect_to_db(async=True):
     return db_client, db
 
 
+class ModelField:
+    def __init__(self):
+        pass
+
+
+class StringField(ModelField):
+    def __init__(self):
+        pass
+
+
+class IntegerField(ModelField):
+    def __init__(self):
+        pass
+
+
 class ModelMeta(type):
     def __new__(cls, name, bases, attrs):
         if 'collection_name' not in attrs:
