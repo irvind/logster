@@ -97,7 +97,7 @@ class Collection:
 
     def __iter__(self):
         if not self.cursor:
-            raise DbError()
+            raise DbError('You must invoke `.find()` before iterating')
 
         if not self.result:
             self.result = list(self.cursor)
