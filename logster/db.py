@@ -63,17 +63,17 @@ class Model(metaclass=ModelMeta):
 
     @classmethod
     def find(cls, **kwargs):
-        return Collection(cls, cls._get_db()).find(**kwargs)
+        return Collection(cls).find(**kwargs)
 
     @classmethod
     def find_one(cls, **kwargs):
-        return Collection(cls, cls._get_db()).find_one(**kwargs)
+        return Collection(cls).find_one(**kwargs)
 
-    @classmethod
-    def _get_db(cls):
-        if hasattr(cls, 'db'):
-            return cls.db
-        raise Exception()
+    # @classmethod
+    # def _get_db(cls):
+    #     if hasattr(cls, 'db'):
+    #         return cls.db
+    #     return None
 
 
 def get_db(conn_str=None, db_name=None):
@@ -86,14 +86,14 @@ def get_db(conn_str=None, db_name=None):
 
 
 class Collection:
-    def __init__(self, model_cls, db):
+    def __init__(self, model_cls, db=None):
         if not issubclass(model_cls, Model):
             raise ValueError(
                 'Class "%s" is not a subclass of "logster.db.Model" class',
                 model_cls.__name__)
 
         self.model_cls = model_cls
-        self.collection = db[model_cls.collection_name]
+        self.collection = (db or get_db())[model_cls.collection_name]
         self.result = None
         self.cursor = None
 
