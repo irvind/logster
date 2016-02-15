@@ -7,6 +7,9 @@ from .conf import config
 from .exceptions import DbError
 
 
+_db = None
+
+
 def connect_to_db(async=True):
     db_conf = config['db']
 
@@ -73,7 +76,13 @@ class Model(metaclass=ModelMeta):
         raise Exception()
 
 
-# db = connect_to_db(False)[1]
+def get_db(conn_str=None, db_name=None):
+    global _db
+
+    if _db is None:
+        _db = MongoClient(conn_str)[db_name]
+
+    return _db
 
 
 class Collection:
