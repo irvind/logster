@@ -2,12 +2,9 @@ import pytest
 import random
 
 import pymongo
-from pymongo import MongoClient
 
-from logster.db import Model
-
-
-_connection = None
+from logster.db import Model, get_db
+from logster import conf
 
 
 class TempCollection:
@@ -28,13 +25,8 @@ class TempCollection:
 
 
 class DbTests:
-    def __init__(self, connstr, testdb):
-        global _connection
-
-        if _connection is None:
-            _connection = MongoClient(connstr)
-
-        self.db = getattr(_connection, testdb)
+    def __init__(self):
+        self.db = get_db(conf.DB_CONN_STRING, conf.TEST_DB_NAME)
 
     def test_collection(self, initial_data=None):
         name = 'test%d' % random.randint(10000, 99999)
@@ -46,7 +38,7 @@ class DbTests:
 
 @pytest.fixture(scope='module')
 def db():
-    return DbTests('mongodb://127.0.0.1:27017', 'logstertest')
+    return DbTests()
 
 
 def test_db_fixture(db):
