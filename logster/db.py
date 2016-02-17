@@ -62,7 +62,7 @@ class ModelMeta(type):
 
             fields[attr] = attr_val
 
-        for field in fields.key():
+        for field in fields.keys():
             attrs.pop(field)
 
         attrs['_declared_fields'] = fields
