@@ -3,7 +3,7 @@ import random
 
 import pymongo
 
-from logster.db import Model, get_db
+from logster.db import Model, StringField, IntegerField, get_db
 from logster import conf
 
 
@@ -50,6 +50,29 @@ def test_db_fixture(db):
 
         assert doc is not None
         assert doc['test'] == 42
+
+
+class TestModel:
+
+    class Kitteh(Model):
+        name = StringField()
+        age = IntegerField()
+        owner_name = StringField()
+
+    def test_declared_fields(self):
+        fields = list(self.Kitteh._declared_fields.items())
+        assert fields[0][0] == 'name' and isinstance(fields[0][1], StringField)
+        assert fields[1][0] == 'age' and isinstance(fields[1][1], IntegerField)
+        assert fields[2][0] == 'owner_name' and isinstance(fields[2][1], StringField)
+
+    def test_field_assignment(self):
+        model = self.Kitteh(name='Ginger', age=3, owner_name='John', foo='bar')
+        
+        di = model.__dict__
+        assert di.get('name') == 'Ginger'
+        assert di.get('age') == 3
+        assert di.get('owner_name') == 'John'
+        assert di.get('foo') == None
 
 
 class TestCollection:
