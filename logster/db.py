@@ -51,6 +51,10 @@ class IntegerField(ModelField):
 
 
 class ModelMeta(type):
+    @classmethod
+    def __prepare__(cls, name, bases, **kwargs):
+        return OrderedDict()
+
     def __new__(cls, name, bases, attrs):
         if 'collection_name' not in attrs:
             attrs['collection_name'] = name.lower()
@@ -67,7 +71,7 @@ class ModelMeta(type):
 
         attrs['_declared_fields'] = fields
 
-        return super().__new__(cls, name, bases, attrs)
+        return super().__new__(cls, name, bases, dict(attrs))
 
 
 class Model(metaclass=ModelMeta):
