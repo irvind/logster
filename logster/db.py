@@ -1,8 +1,12 @@
 from collections import OrderedDict
 
+from tornado.ioloop import IOLoop
+from tornado.concurrent import Future
+
 import pymongo
 
 from motor.motor_tornado import MotorClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 
 from .conf import config
@@ -131,6 +135,18 @@ class Collection:
 
         self.cursor = self.cursor.sort(sorters)
         return self
+
+    def find_one_async(self, **kwargs):
+        col_fut = self.collection.find_one(kwargs)
+        fut = Future()
+
+        def cb(result, error):
+            r = self.model_cls(**result) if result is not None else None
+            fut.set_result(r)
+
+        IOLoop.add_future(col_fut, cb)
+
+        return fut
 
     def find_one(self, **kwargs):
         data = self.collection.find_one(kwargs)
