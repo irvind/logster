@@ -12,7 +12,7 @@ from .exceptions import DbError
 _db = None
 
 
-def connect_to_db(async=True):
+def connect_to_db(async=True, use_asyncio=False):
     db_conf = config['db']
 
     with_auth = db_conf.get('user') and db_conf.get('password')
@@ -26,8 +26,14 @@ def connect_to_db(async=True):
 
     dest = '{host}:{port}'.format(**db_conf)
 
+    if async and use_asyncio:
+        client_cls = AsyncIOMotorClient
+    elif async and not use_asyncio:
+        client_cls = MotorClient
+    else:
+        client_cls = MongoClient
+
     conn_str = 'mongodb://' + auth + dest + auth_db
-    client_cls = MotorClient if async else MongoClient
     db_client = client_cls(conn_str)
 
     db = getattr(db_client, db_conf['dbName'])
