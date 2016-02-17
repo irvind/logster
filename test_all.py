@@ -36,7 +36,7 @@ class DbTests:
         return TempCollection(self.db, name, initial_data)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def db():
     return DbTests()
 
