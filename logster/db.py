@@ -9,6 +9,8 @@ from motor.motor_tornado import MotorClient
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 
+from motor.motor_tornado import MotorCursor
+
 from .conf import config
 from .exceptions import DbError
 
@@ -157,6 +159,9 @@ class Collection:
     def __iter__(self):
         if not self.cursor:
             raise DbError('You must invoke `.find()` before iterating')
+
+        if isinstance(self.cursor, MotorCursor):
+            raise DbError("You can't use standard iterator with async cursor")
 
         if not self.result:
             self.result = list(self.cursor)
