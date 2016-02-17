@@ -88,12 +88,6 @@ class Model(metaclass=ModelMeta):
     def find_one(cls, **kwargs):
         return Collection(cls).find_one(**kwargs)
 
-    # @classmethod
-    # def _get_db(cls):
-    #     if hasattr(cls, 'db'):
-    #         return cls.db
-    #     return None
-
 
 def get_db(conn_str=None, db_name=None):
     global _db
