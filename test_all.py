@@ -52,17 +52,19 @@ def test_db_fixture(db):
         assert doc['test'] == 42
 
 
-def test_find_in_collection(db):
-    data = [
-        {'name': 'Ginger', 'age': 2},
-        {'name': 'Kleo', 'age': 4},
-        {'name': 'Fluffy', 'age': 7}
-    ]
+class TestCollection:
+    def test_find_in_collection(self, db):
+        data = [
+            {'name': 'Ginger', 'age': 2},
+            {'name': 'Kleo', 'age': 4},
+            {'name': 'Fluffy', 'age': 7}
+        ]
 
-    with db.test_collection(initial_data=data) as col:
-        class Kitteh(Model):
-            collection_name = col.name
-            db = col.database
+        with db.test_collection(initial_data=data) as col:
+            class Kitteh(Model):
+                collection_name = col.name
+                name = StringField()
+                age = IntegerField()
 
-        cat = Kitteh.find_one(name='Ginger')
-        assert cat.name == 'Ginger'
+            cat = Kitteh.find_one(name='Ginger')
+            assert cat.name == 'Ginger'
